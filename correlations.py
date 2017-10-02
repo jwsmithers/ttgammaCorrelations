@@ -33,6 +33,9 @@ import glob
 import sys
 import os
 import matplotlib.pyplot as plt
+from matplotlib import rc
+rc('font',**{'family':'sans-serif','sans-serif':['Helvetica']})
+rc('text', usetex=True)
 import pandas
 import numpy
 from pandas.tools.plotting import scatter_matrix
@@ -82,7 +85,21 @@ def createMatrix(correlation_list, variables, label,option):
 	# Only show ticks on the left and bottom spines
 	ax.yaxis.set_ticks_position('left')
 	ax.xaxis.set_ticks_position('bottom')
-	plt.title(option+" "+str(label))
+	if label=="dilepton":
+	  plt.text(2.9,0.0,r"\textit{\textbf{ATLAS}} internal",
+            fontsize=18, color='black')
+          plt.text(2.9,0.50,option,
+            fontsize=15, color='black')
+          plt.text(2.9,1.0,str(label),
+            fontsize=15, color='black')
+        if label=="single lepton":
+          plt.text(3.9,0.3,r"\textit{\textbf{ATLAS}} internal",
+            fontsize=18, color='black')
+          plt.text(3.9,2.00,option,
+            fontsize=15, color='black')
+          plt.text(3.9,3.7,str(label),
+            fontsize=15, color='black')
+
 	plt.tight_layout()
 	plt.savefig("Correlations/Matrix_"+label.replace(" ","_")+"_"+option+".png")
 	plt.savefig("Correlations/Matrix_"+label.replace(" ","_")+"_"+option+".eps")
@@ -192,11 +209,11 @@ var_inputs_SL["jet_pt_5th"]=r"5th jet $p_{T}$"
 var_inputs_SL["jet_tagWeightBin_leading"]="1st jet btag weight"
 var_inputs_SL["jet_tagWeightBin_subleading"]="2nd jet btag weight"
 var_inputs_SL["jet_tagWeightBin_subsubleading"]="3rd jet btag weight"
-var_inputs_SL["event_njets"]="# of jets"
-var_inputs_SL["event_nbjets77"]="# btagged jets"
+var_inputs_SL["event_njets"]="nr. of jets"
+var_inputs_SL["event_nbjets77"]="nr. btagged jets"
 
-#createCorrelationPlots(var_inputs_SL,
-#  ["ejets"], label="single lepton")
+createCorrelationPlots(var_inputs_SL,
+  ["ejets"], label="single lepton")
 
 var_inputs_DL['event_ELD_MVA[selph_index1]']="ELD"
 var_inputs_DL["met_met"]="MET"
@@ -205,7 +222,7 @@ var_inputs_DL["jet_pt_1st"]=r"1st jet $p_{T}$"
 var_inputs_DL["jet_pt_2nd"]=r"2nd jet $p_{T}$"
 var_inputs_DL["jet_tagWeightBin_leading"]="1st jet btag weight"
 var_inputs_DL["jet_tagWeightBin_subleading"]="2nd jet btag weight"
-var_inputs_DL["event_nbjets77"]="# btagged jets"
+var_inputs_DL["event_nbjets77"]="nr. btagged jets"
 
-createCorrelationPlots(var_inputs_DL,
-  ["ee","emu","mumu"], label="dilepton")
+#createCorrelationPlots(var_inputs_DL,
+#  ["ee","emu","mumu"], label="dilepton")
