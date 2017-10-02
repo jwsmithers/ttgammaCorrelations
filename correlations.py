@@ -133,7 +133,8 @@ def createCorrelationPlots(variables_dict, region,label):
 	correlation_sig = []
         bookkeeper=[]
         weight= ROOT.TCut("weight_mc*weight_pileup*ph_SF_eff[selph_index1]*ph_SF_iso[selph_index1]*weight_leptonSF*weight_jvt*weight_bTagSF_Continuous*event_norm * event_lumi * ph_kfactor[selph_index1]")
-        cut = ROOT.TCut("(ejets_2015 || ejets_2016) && selph_index1 >= 0 && event_ngoodphotons==1 && event_njets >= 4 && event_nbjets77 >= 1 && abs(ph_mgammalept[selph_index1] - 91188) > 5000 && ph_drlept[selph_index1] > 1.0 && ph_isoFCT[selph_index1]")
+	cut = ROOT.TCut("(selph_index1>=0)")
+        #cut = ROOT.TCut("(ejets_2015 || ejets_2016) && selph_index1 >= 0 && event_ngoodphotons==1 && event_njets >= 4 && event_nbjets77 >= 1 && abs(ph_mgammalept[selph_index1] - 91188) > 5000 && ph_drlept[selph_index1] > 1.0 && ph_isoFCT[selph_index1]")
 
 	print "------- Correlations -------"
 	for i in range(0,len(variables)):
@@ -174,23 +175,37 @@ def createCorrelationPlots(variables_dict, region,label):
 
 # createCorrelationPlots({dict of variables},[list of channels],label)
 from collections import OrderedDict
-var_inputs=OrderedDict()
-var_inputs['event_ELD_MVA[selph_index1]']="ELD"
-var_inputs['ph_HFT_MVA[selph_index1]']="PPT"
-var_inputs["event_HT"]="HT"
-var_inputs["event_mwt"]=r"$m_{T}(W)$"
-var_inputs["met_met"]="MET"
-var_inputs["ph_HFT_MVA[selph_index1]"]="PPT"
-var_inputs["jet_pt_1st"]=r"1st jet $p_{T}$"
-var_inputs["jet_pt_2nd"]=r"2nd jet $p_{T}$"
-var_inputs["jet_pt_3rd"]=r"3rd jet $p_{T}$"
-var_inputs["jet_pt_4th"]=r"4th jet $p_{T}$"
-var_inputs["jet_pt_5th"]=r"5th jet $p_{T}$"
-var_inputs["jet_tagWeightBin_leading"]="1st jet btag weight"
-var_inputs["jet_tagWeightBin_subleading"]="2nd jet btag weight"
-var_inputs["jet_tagWeightBin_subsubleading"]="3rd jet btag weight"
-var_inputs["event_njets"]="# of jets"
-var_inputs["event_nbjets77"]="# btagged jets"
+var_inputs_SL=OrderedDict()
+var_inputs_DL=OrderedDict()
 
-createCorrelationPlots(var_inputs,
-  ["ejets"], label="single lepton")
+var_inputs_SL['event_ELD_MVA[selph_index1]']="ELD"
+var_inputs_SL['ph_HFT_MVA[selph_index1]']="PPT"
+var_inputs_SL["event_HT"]="HT"
+var_inputs_SL["event_mwt"]=r"$m_{T}(W)$"
+var_inputs_SL["met_met"]="MET"
+var_inputs_SL["ph_HFT_MVA[selph_index1]"]="PPT"
+var_inputs_SL["jet_pt_1st"]=r"1st jet $p_{T}$"
+var_inputs_SL["jet_pt_2nd"]=r"2nd jet $p_{T}$"
+var_inputs_SL["jet_pt_3rd"]=r"3rd jet $p_{T}$"
+var_inputs_SL["jet_pt_4th"]=r"4th jet $p_{T}$"
+var_inputs_SL["jet_pt_5th"]=r"5th jet $p_{T}$"
+var_inputs_SL["jet_tagWeightBin_leading"]="1st jet btag weight"
+var_inputs_SL["jet_tagWeightBin_subleading"]="2nd jet btag weight"
+var_inputs_SL["jet_tagWeightBin_subsubleading"]="3rd jet btag weight"
+var_inputs_SL["event_njets"]="# of jets"
+var_inputs_SL["event_nbjets77"]="# btagged jets"
+
+#createCorrelationPlots(var_inputs_SL,
+#  ["ejets"], label="single lepton")
+
+var_inputs_DL['event_ELD_MVA[selph_index1]']="ELD"
+var_inputs_DL["met_met"]="MET"
+var_inputs_DL["event_mll"]=r"$m(l,l)$"
+var_inputs_DL["jet_pt_1st"]=r"1st jet $p_{T}$"
+var_inputs_DL["jet_pt_2nd"]=r"2nd jet $p_{T}$"
+var_inputs_DL["jet_tagWeightBin_leading"]="1st jet btag weight"
+var_inputs_DL["jet_tagWeightBin_subleading"]="2nd jet btag weight"
+var_inputs_DL["event_nbjets77"]="# btagged jets"
+
+createCorrelationPlots(var_inputs_DL,
+  ["ee","emu","mumu"], label="dilepton")
