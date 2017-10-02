@@ -18,6 +18,7 @@ Usage:
 
 Output:
 png's.
+eps's
 """
 import argparse
 
@@ -57,7 +58,6 @@ bkg_samples = [	"410501.ttbar_nonallhad_P8.p3138",
 		"ST_other",
 		"ST_Wt_inclusive"]
 
-
 def createMatrix(correlation_list, variables, label,option):
 	correlation_array = numpy.asarray(correlation_list)
 	correlation_array_reshaped_temp = correlation_array.reshape(len(correlation_list)/len(variables),
@@ -85,12 +85,21 @@ def createMatrix(correlation_list, variables, label,option):
 	plt.title(option+" "+str(label))
 	plt.tight_layout()
 	plt.savefig("Correlations/Matrix_"+label.replace(" ","_")+"_"+option+".png")
+	plt.savefig("Correlations/Matrix_"+label.replace(" ","_")+"_"+option+".eps")
 
-def createCorrelationPlots(variables, region,label):
+def createCorrelationPlots(variables_dict, region,label):
         ntuples = []
         ntuples_complete = []
         sChain = ROOT.TChain("nominal")
         bChain = ROOT.TChain("nominal")
+
+	# Beautify the labels
+	variables=[]
+	variables_pretty=[]
+	for k,v in variables_dict.iteritems():
+		variables.append(k)
+		variables_pretty.append(v)
+
         for r in region:
 		path1 = "/eos/atlas/atlascerngroupdisk/phys-top/toproperties/ttgamma/v010/SR1S/"+r+"/"
 		path2 = "/eos/atlas/atlascerngroupdisk/phys-top/toproperties/ttgamma/v010/SR1/"+r+"/"
@@ -158,27 +167,30 @@ def createCorrelationPlots(variables, region,label):
 				#c1.Print("Correlations/"+variables[i]+"_"+variables[j]+".png")
 
 	createMatrix(correlation_list=correlation_sig, 
-		variables=variables, label=label, option="signal")
+		variables=variables_pretty, label=label, option="signal")
 	createMatrix(correlation_list=correlation_bkg, 
-		variables=variables, label=label, option="background")
+		variables=variables_pretty, label=label, option="background")
 
 
-# createCorrelationPlots([list of variables],[list of channels],label)
-createCorrelationPlots([
-  'event_ELD_MVA[selph_index1]', 
-  "event_HT",
-  "event_mwt",
-  "met_met",
-  "ph_HFT_MVA[selph_index1]", 
-  "jet_pt_1st",
-  "jet_pt_2nd",
-  "jet_pt_3rd",
-  "jet_pt_4th",
-  "jet_pt_5th",
-  "jet_tagWeightBin_leading",
-  "jet_tagWeightBin_subleading",
-  "jet_tagWeightBin_subsubleading",
-  "event_njets",
-  "event_nbjets77"], 
+# createCorrelationPlots({dict of variables},[list of channels],label)
+from collections import OrderedDict
+var_inputs=OrderedDict()
+var_inputs['event_ELD_MVA[selph_index1]']="ELD"
+var_inputs['ph_HFT_MVA[selph_index1]']="PPT"
+var_inputs["event_HT"]="HT"
+var_inputs["event_mwt"]=r"$m_{T}(W)$"
+var_inputs["met_met"]="MET"
+var_inputs["ph_HFT_MVA[selph_index1]"]="PPT"
+var_inputs["jet_pt_1st"]=r"1st jet $p_{T}$"
+var_inputs["jet_pt_2nd"]=r"2nd jet $p_{T}$"
+var_inputs["jet_pt_3rd"]=r"3rd jet $p_{T}$"
+var_inputs["jet_pt_4th"]=r"4th jet $p_{T}$"
+var_inputs["jet_pt_5th"]=r"5th jet $p_{T}$"
+var_inputs["jet_tagWeightBin_leading"]="1st jet btag weight"
+var_inputs["jet_tagWeightBin_subleading"]="2nd jet btag weight"
+var_inputs["jet_tagWeightBin_subsubleading"]="3rd jet btag weight"
+var_inputs["event_njets"]="# of jets"
+var_inputs["event_nbjets77"]="# btagged jets"
+
+createCorrelationPlots(var_inputs,
   ["ejets"], label="single lepton")
-
