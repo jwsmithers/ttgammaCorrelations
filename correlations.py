@@ -61,8 +61,9 @@ bkg_samples = [	"410501.ttbar_nonallhad_P8.p3138",
 
 def createMatrix(correlation_list, variables, label,option):
 	correlation_array = numpy.asarray(correlation_list)
-	correlation_array_reshaped = correlation_array.reshape(len(correlation_list)/len(variables),
+	correlation_array_reshaped_temp = correlation_array.reshape(len(correlation_list)/len(variables),
 		len(variables))
+	correlation_array_reshaped=correlation_array_reshaped_temp.transpose()
 	data = pandas.DataFrame(correlation_array_reshaped, columns=variables)
 	fig = plt.figure()
 	ax = fig.add_subplot(111)
@@ -76,6 +77,12 @@ def createMatrix(correlation_list, variables, label,option):
 	ax.set_yticklabels(variables)
 	plt.setp(plt.xticks()[1], rotation=90)
 	ax.tick_params(labelsize=10)
+	# Hide the right and top spines
+	ax.spines['right'].set_visible(False)
+	ax.spines['top'].set_visible(False)
+	# Only show ticks on the left and bottom spines
+	ax.yaxis.set_ticks_position('left')
+	ax.xaxis.set_ticks_position('bottom')
 	plt.title(option+" "+str(label))
 	plt.tight_layout()
 	plt.savefig("Correlations/Matrix_"+label.replace(" ","_")+"_"+option+".png")
@@ -116,37 +123,40 @@ def createCorrelationPlots(variables, region,label):
 	c1 = ROOT.TCanvas("c1","test",10,10,800,600)
 	correlation_bkg = []
 	correlation_sig = []
+        bookkeeper=[]
         weight= ROOT.TCut("weight_mc*weight_pileup*ph_SF_eff[selph_index1]*ph_SF_iso[selph_index1]*weight_leptonSF*weight_jvt*weight_bTagSF_Continuous*event_norm * event_lumi * ph_kfactor[selph_index1]")
         cut = ROOT.TCut("(ejets_2015 || ejets_2016) && selph_index1 >= 0 && event_ngoodphotons==1 && event_njets >= 4 && event_nbjets77 >= 1 && abs(ph_mgammalept[selph_index1] - 91188) > 5000 && ph_drlept[selph_index1] > 1.0 && ph_isoFCT[selph_index1]")
 
 	print "------- Correlations -------"
 	for i in range(0,len(variables)):
-		for j in range(0,len(variables)):
-			sig = variables[i]+"_"+variables[j]+"_sig"
-			bkg = variables[i]+"_"+variables[j]+"_bkg"
-
-			comparison = variables[i]+":"+variables[j]
-			# WIP: speed things up
-			#comparison_reversed = variables[j]+":"+variables[i]
-                        #if comparison == comparison_reversed:
-			#	correlation_sig.append(1)
-			#	correlation_bkg.append(1)
-			#	continue
-
-			# sig
-			sChain.Draw(comparison+">>"+sig,weight*cut,"COL2")
-			h_sig=ROOT.gPad.GetPrimitive(sig)
-			correlation_sig.append(h_sig.GetCorrelationFactor())
-			print sig+" = ",h_sig.GetCorrelationFactor()
-
-			# bkg
-			bChain.Draw(comparison+">>"+bkg,weight*cut,"COL2")
-			h_bkg=ROOT.gPad.GetPrimitive(bkg)
-			correlation_bkg.append(h_bkg.GetCorrelationFactor())
-			print bkg+" = ",h_bkg.GetCorrelationFactor()
-
-			#Uncomment if you want ALOT of pngs. Use carefully. WIP
-			#c1.Print("Correlations/"+variables[i]+"_"+variables[j]+".png")
+			for j in range(0,len(variables)):
+				sig = variables[i]+"_"+variables[j]+"_sig"
+				bkg = variables[i]+"_"+variables[j]+"_bkg"
+	
+				comparison = variables[j]+":"+variables[i]
+				# WIP: speed things up
+				comparison_reversed = variables[i]+":"+variables[j]
+				if comparison not in bookkeeper or comparison_reversed not in bookkeeper:
+					bookkeeper.append(comparison)
+					bookkeeper.append(comparison_reversed)
+	
+					# sig
+					sChain.Draw(comparison+">>"+sig,weight*cut,"COL2")
+					h_sig=ROOT.gPad.GetPrimitive(sig)
+					correlation_sig.append(h_sig.GetCorrelationFactor())
+					print sig+" = ",h_sig.GetCorrelationFactor()
+	
+					# bkg
+					bChain.Draw(comparison+">>"+bkg,weight*cut,"COL2")
+					h_bkg=ROOT.gPad.GetPrimitive(bkg)
+					correlation_bkg.append(h_bkg.GetCorrelationFactor())
+					print bkg+" = ",h_bkg.GetCorrelationFactor()
+				else:
+					correlation_sig.append(float("NaN"))
+					correlation_bkg.append(float("NaN"))
+	
+				#Uncomment if you want ALOT of pngs. Use carefully. WIP
+				#c1.Print("Correlations/"+variables[i]+"_"+variables[j]+".png")
 
 	createMatrix(correlation_list=correlation_sig, 
 		variables=variables, label=label, option="signal")
@@ -156,7 +166,20 @@ def createCorrelationPlots(variables, region,label):
 
 # createCorrelationPlots([list of variables],[list of channels],label)
 createCorrelationPlots([
-  'event_ELD_MVA', 
-  'ph_pt', 
-  'event_njets'], ["ejets"], label="single lepton")
+  'event_ELD_MVA[selph_index1]', 
+  "event_HT",
+  "event_mwt",
+  "met_met",
+  "ph_HFT_MVA[selph_index1]", 
+  "jet_pt_1st",
+  "jet_pt_2nd",
+  "jet_pt_3rd",
+  "jet_pt_4th",
+  "jet_pt_5th",
+  "jet_tagWeightBin_leading",
+  "jet_tagWeightBin_subleading",
+  "jet_tagWeightBin_subsubleading",
+  "event_njets",
+  "event_nbjets77"], 
+  ["ejets"], label="single lepton")
 
