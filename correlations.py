@@ -89,9 +89,9 @@ def createMatrix(correlation_list, variables, label,option):
   if label=="single lepton":
     plt.text(3.9,0.3,r"\textit{\textbf{ATLAS}} internal",
             fontsize=18, color='black')
-    plt.text(3.9,2.00,option,
+    plt.text(3.9,1.2,option,
             fontsize=15, color='black')
-    plt.text(3.9,3.7,str(label),
+    plt.text(3.9,2.1,str(label),
             fontsize=15, color='black')
 
   plt.tight_layout()
@@ -124,6 +124,7 @@ def createCorrelationPlots(variables_dict, region,label):
     ntuples1 = glob.glob(path1+"*")
     ntuples2 = glob.glob(path2+"*")
     ntuples_r = ntuples1+ntuples2
+
     ntuples.append(ntuples_r)
     for l in range(0, len(ntuples)):
       for j in ntuples[l]:
@@ -209,8 +210,8 @@ var_inputs_SL["jet_tagWeightBin_subsubleading"]="3rd jet btag weight"
 var_inputs_SL["event_njets"]="nr. of jets"
 var_inputs_SL["event_nbjets77"]="nr. btagged jets"
 
-# createCorrelationPlots(var_inputs_SL,
-#   ["ejets"], label="single lepton")
+createCorrelationPlots(var_inputs_SL,
+  ["ejets","mujets"], label="single lepton")
 
 var_inputs_DL['event_ELD_MVA[selph_index1]']="ELD"
 var_inputs_DL["met_met"]="MET"
@@ -221,5 +222,5 @@ var_inputs_DL["jet_tagWeightBin_leading"]="1st jet btag weight"
 var_inputs_DL["jet_tagWeightBin_subleading"]="2nd jet btag weight"
 var_inputs_DL["event_nbjets77"]="nr. btagged jets"
 
-createCorrelationPlots(var_inputs_DL,
- ["ee","emu","mumu"], label="dilepton")
+# createCorrelationPlots(var_inputs_DL,
+#  ["ee","emu","mumu"], label="dilepton")
