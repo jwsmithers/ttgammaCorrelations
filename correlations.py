@@ -111,8 +111,8 @@ def createCorrelationPlots(variables_dict, region,label):
     variables.append(k)
     variables_pretty.append(v)
   for r in region:
-    path1 = "/eos/atlas/atlascerngroupdisk/phys-top/toproperties/ttgamma/v010/SR1S/"+r+"/"
-    path2 = "/eos/atlas/atlascerngroupdisk/phys-top/toproperties/ttgamma/v010/SR1/"+r+"/"
+    path1 = "/eos/atlas/atlascerngroupdisk/phys-top/toproperties/ttgamma/v010_production/SR1S/"+r+"/"
+    path2 = "/eos/atlas/atlascerngroupdisk/phys-top/toproperties/ttgamma/v010_production/SR1/"+r+"/"
     if not os.path.exists(path1):
       print "Error path1! EOS is probably at fault..."
       return
@@ -142,7 +142,7 @@ def createCorrelationPlots(variables_dict, region,label):
   correlation_bkg = []
   correlation_sig = []
   bookkeeper=[]
-  weight= ROOT.TCut("weight_mc*weight_pileup*ph_SF_eff[selph_index1]*ph_SF_iso[selph_index1]*weight_leptonSF*weight_jvt*weight_bTagSF_Continuous*event_norm * event_lumi * ph_kfactor[selph_index1]")
+  weight= ROOT.TCut("weight_mc*weight_pileup*ph_SF_eff[selph_index1]*ph_SF_iso[selph_index1]*weight_leptonSF*weight_jvt*weight_bTagSF_Continuous*event_norm2 * event_lumi * ph_kfactor_correct[selph_index1]")
   # A very long and horrible cut string for each channel
   cut = ROOT.TCut("( ((ejets_2015 || ejets_2016) && event_ngoodphotons==1 && event_njets >= 4 && event_nbjets77 >= 1 && abs(ph_mgammalept[selph_index1] - 91188) > 5000 && ph_drlept[selph_index1] > 1.0 && ph_isoFCT[selph_index1]) || \
   ((mujets_2015 || mujets_2016) && event_ngoodphotons==1 && event_njets >= 4 && event_nbjets77 >= 1 && ph_drlept[selph_index1] > 1.0 && ph_isoFCT[selph_index1]) || \
@@ -193,34 +193,35 @@ from collections import OrderedDict
 var_inputs_SL=OrderedDict()
 var_inputs_DL=OrderedDict()
 
-var_inputs_SL['event_ELD_MVA[selph_index1]']="ELD"
+var_inputs_SL['event_ELD_MVA_correct[selph_index1]']="ELD"
 var_inputs_SL['ph_HFT_MVA[selph_index1]']="PPT"
 var_inputs_SL["event_HT"]="HT"
 var_inputs_SL["event_mwt"]=r"$m_{T}(W)$"
 var_inputs_SL["met_met"]="MET"
+var_inputs_SL["ph_mgammalept[selph_index1]"]=r"$m(\gamma,l)$"
 var_inputs_SL["ph_HFT_MVA[selph_index1]"]="PPT"
 var_inputs_SL["jet_pt_1st"]=r"1st jet $p_{T}$"
 var_inputs_SL["jet_pt_2nd"]=r"2nd jet $p_{T}$"
 var_inputs_SL["jet_pt_3rd"]=r"3rd jet $p_{T}$"
 var_inputs_SL["jet_pt_4th"]=r"4th jet $p_{T}$"
 var_inputs_SL["jet_pt_5th"]=r"5th jet $p_{T}$"
-var_inputs_SL["jet_tagWeightBin_leading"]="1st jet btag weight"
-var_inputs_SL["jet_tagWeightBin_subleading"]="2nd jet btag weight"
-var_inputs_SL["jet_tagWeightBin_subsubleading"]="3rd jet btag weight"
+var_inputs_SL["jet_tagWeightBin_leading_correct"]="1st jet btag weight"
+var_inputs_SL["jet_tagWeightBin_subleading_correct"]="2nd jet btag weight"
+var_inputs_SL["jet_tagWeightBin_subsubleading_correct"]="3rd jet btag weight"
 var_inputs_SL["event_njets"]="nr. of jets"
 var_inputs_SL["event_nbjets77"]="nr. btagged jets"
 
 createCorrelationPlots(var_inputs_SL,
   ["ejets","mujets"], label="single lepton")
 
-var_inputs_DL['event_ELD_MVA[selph_index1]']="ELD"
+var_inputs_DL['event_ELD_MVA_correct[selph_index1]']="ELD"
 var_inputs_DL["met_met"]="MET"
 var_inputs_DL["event_mll"]=r"$m(l,l)$"
 var_inputs_DL["jet_pt_1st"]=r"1st jet $p_{T}$"
 var_inputs_DL["jet_pt_2nd"]=r"2nd jet $p_{T}$"
-var_inputs_DL["jet_tagWeightBin_leading"]="1st jet btag weight"
-var_inputs_DL["jet_tagWeightBin_subleading"]="2nd jet btag weight"
+var_inputs_DL["jet_tagWeightBin_leading_correct"]="1st jet btag weight"
+var_inputs_DL["jet_tagWeightBin_subleading_correct"]="2nd jet btag weight"
 var_inputs_DL["event_nbjets77"]="nr. btagged jets"
 
-# createCorrelationPlots(var_inputs_DL,
-#  ["ee","emu","mumu"], label="dilepton")
+createCorrelationPlots(var_inputs_DL,
+  ["ee","emu","mumu"], label="dilepton")
