@@ -26,6 +26,8 @@ import ROOT
 import glob
 import sys
 import os
+import matplotlib
+matplotlib.use('Agg')
 import matplotlib.pyplot as plt
 from matplotlib import rc
 rc('font',**{'family':'sans-serif','sans-serif':['Helvetica']})
@@ -34,11 +36,11 @@ import pandas
 import numpy
 from pandas.tools.plotting import scatter_matrix
 
-ROOT.gROOT.ProcessLine( "gErrorIgnoreLevel = 6000;")
+#ROOT.gROOT.ProcessLine( "gErrorIgnoreLevel = 6000;")
 ROOT.gROOT.SetBatch(True)
 ROOT.gStyle.SetOptStat(0);
 
-bkg_samples = [ "410501.ttbar_nonallhad_P8.p3138",
+bkg_samples =[ "410501.ttbar_nonallhad_P8.p3138",
     "enugamma.p3152.v010",
     "munugamma.p3152.v010",
     "taunugamma.p3152.v010",
@@ -47,7 +49,7 @@ bkg_samples = [ "410501.ttbar_nonallhad_P8.p3138",
     "Wtaunu.p3317.v010",
     "eegamma.p3152.v010",
     "mumugamma.p3152.v010",
-    "tautaugamma",# Remember it's this HM match
+    "tautaugamma.HM",# Remember it's this HM match
     "Zee.p3317.v010",
     "Zmumu.p3317.v010",
     "Ztautau.p3317.v010",
@@ -81,18 +83,22 @@ def createMatrix(correlation_list, variables, label,option):
   ax.yaxis.set_ticks_position('left')
   ax.xaxis.set_ticks_position('bottom')
   if label=="dilepton":
-    plt.text(2.9,0.0,r"\textit{\textbf{ATLAS}} internal",
+    plt.text(3.9,0.0,r"\textit{\textbf{ATLAS}} internal",
             fontsize=18, color='black')
-    plt.text(2.9,0.50,option,
+    plt.text(3.9,0.70,option,
             fontsize=15, color='black')
-    plt.text(2.9,1.0,str(label),
+    plt.text(3.9,1.40,str(label),
+            fontsize=15, color='black')
+    plt.text(3.9,2.10,r"$\sqrt{s} = 13$ TeV, 36.1 fb$^{-1}$",
             fontsize=15, color='black')
   if label=="single lepton":
-    plt.text(3.9,0.3,r"\textit{\textbf{ATLAS}} internal",
+    plt.text(3.9,0.0,r"\textit{\textbf{ATLAS}} internal",
             fontsize=18, color='black')
-    plt.text(3.9,1.2,option,
+    plt.text(3.9,0.70,option,
             fontsize=15, color='black')
-    plt.text(3.9,2.1,str(label),
+    plt.text(3.9,1.4,str(label),
+            fontsize=15, color='black')
+    plt.text(3.9,2.10,r"$\sqrt{s} = 13$ TeV, 36.1 fb$^{-1}$",
             fontsize=15, color='black')
 
   plt.tight_layout()
@@ -102,8 +108,14 @@ def createMatrix(correlation_list, variables, label,option):
 def createCorrelationPlots(variables_dict, region,label):
   ntuples = []
   ntuples_complete = []
-  sChain = ROOT.TChain("nominal")
-  bChain = ROOT.TChain("nominal")
+
+  prompt_selection="!( (ph_truthOrigin[selph_index1]==23 || ph_truthOrigin[selph_index1]==24 || ph_truthOrigin[selph_index1]==25 || ph_truthOrigin[selph_index1]==26 || ph_truthOrigin[selph_index1]==27 || ph_truthOrigin[selph_index1]==28 || ph_truthOrigin[selph_index1]==29 || ph_truthOrigin[selph_index1]==30 || ph_truthOrigin[selph_index1]==31 || ph_truthOrigin[selph_index1]==32 || ph_truthOrigin[selph_index1]==33 || ph_truthOrigin[selph_index1]==34 || ph_truthOrigin[selph_index1]==35 || ph_truthOrigin[selph_index1]==42) && ph_truthType[selph_index1] == 16 ) && !( abs(ph_mc_pid[selph_index1])==11 || ( ph_mcel_dr[selph_index1]<0.05 && ph_mcel_dr[selph_index1]>=0 ) )"
+
+  hfake_selection="((ph_truthOrigin[selph_index1]==23 || ph_truthOrigin[selph_index1]==24 || ph_truthOrigin[selph_index1]==25 || ph_truthOrigin[selph_index1]==26 || ph_truthOrigin[selph_index1]==27 || ph_truthOrigin[selph_index1]==28 || ph_truthOrigin[selph_index1]==29 || ph_truthOrigin[selph_index1]==30 || ph_truthOrigin[selph_index1]==31 || ph_truthOrigin[selph_index1]==32 || ph_truthOrigin[selph_index1]==33 || ph_truthOrigin[selph_index1]==34 || ph_truthOrigin[selph_index1]==35 || ph_truthOrigin[selph_index1]==42) && ph_truthType[selph_index1] == 16  && !( abs(ph_mc_pid[selph_index1])==11 || ( ph_mcel_dr[selph_index1]<0.05 && ph_mcel_dr[selph_index1]>=0 ) ))"
+
+  efake_selection="(abs(ph_mc_pid[selph_index1])==11 || ( ph_mcel_dr[selph_index1]<0.05 && ph_mcel_dr[selph_index1]>=0 ))"
+ 
+  QCD_selection="(( (ejets_2015 || ejets_2016) && (ejets_2015 && (HLT_e24_lhmedium_L1EM20VH || HLT_e60_lhmedium || HLT_e120_lhloose)) || (ejets_2016 && ((HLT_e26_lhtight_nod0_ivarloose && Alt$(el_pt[0] < 61000.,0)) || ((HLT_e60_lhmedium_nod0 || HLT_e140_lhloose_nod0) && Alt$(el_pt[0] > 61000,0))))) || ( (mujets_2015 || mujets_2016) && (mujets_2015 && (HLT_mu20_iloose_L1MU15 || HLT_mu50)) || (mujets_2016 && ((HLT_mu24 && Alt$(mu_pt[0] < 51000.,0)) || (HLT_mu50 && Alt$(mu_pt[0] > 51000.,0))))))"
 
   # Beautify the labels
   variables=[]
@@ -125,19 +137,54 @@ def createCorrelationPlots(variables_dict, region,label):
     ntuples1 = glob.glob(path1+"*")
     ntuples2 = glob.glob(path2+"*")
     ntuples_r = ntuples1+ntuples2
-
     ntuples.append(ntuples_r)
-    for l in range(0, len(ntuples)):
-      for j in ntuples[l]:
-        ntuples_complete.append(j)
-  print j
+  for l in range(0, len(ntuples)):
+    for j in ntuples[l]:
+      if ".root" not in j: continue
+      ntuples_complete.append(j)
+
+  signal_list = ROOT.TList()
+  background_list = ROOT.TList()
+
+  other_prompt_samples = ["ttV", "ST","enugamma", "munugamma", "taunugamma", "eegamma", "mumugamma", "tautaugamma", "VV" ]
+  hfake_efake_samples = ["Wenu", "Wmunu", "Wtaunu", "Zee", "Zmumu", "Ztautau", "ttbar"]
+
   for i in ntuples_complete:
-    if "ttgamma_noallhad.p3152.v010" in i:
-      print i
-      sChain.Add(i)
-    if any(x in i for x in bkg_samples):
-      print i
-      bChain.Add(i)
+    f = ROOT.TFile(i,"r")
+    if f.GetListOfKeys().Contains("nominal"): 
+      tree = f.Get("nominal")
+      ROOT.gROOT.cd()
+
+      if "ttgamma_noallhad.p3152.v010" in i:
+        print "Adding ", i, " to signal list"
+        ttgamma_tree_copy = tree.CopyTree(prompt_selection) 
+        ttgamma_tree_copy.SetName("nominal")
+        signal_list.Add(ttgamma_tree_copy)
+      if any(x in i for x in bkg_samples):
+        
+        if any(word in i for word in hfake_efake_samples): 
+          print "Adding ", i, " to hfake/efake trees"
+          hfake_tree = tree.CopyTree(hfake_selection)
+          hfake_tree.SetName("nominal")
+          background_list.Add(hfake_tree)
+          efake_tree = tree.CopyTree(efake_selection)
+          efake_tree.SetName("nominal")
+          background_list.Add(efake_tree)
+
+        elif any(word in i for word in other_prompt_samples):
+          prompt_bkg_tree = tree.CopyTree(prompt_selection)
+          prompt_bkg_tree.SetName("nominal")
+          background_list.Add(prompt_bkg_tree)
+          print "Adding ", i, " to prompt background trees"
+        else:
+          print("Don't know what overlap removal to use!")
+
+    else: 
+      continue
+
+  sChain = ROOT.TTree.MergeTrees(signal_list)
+  bChain = ROOT.TTree.MergeTrees(background_list)
+  print "written new TTrees"
 
   c1 = ROOT.TCanvas("c1","test",10,10,800,600)
   correlation_bkg = []
@@ -164,7 +211,6 @@ def createCorrelationPlots(variables_dict, region,label):
         bookkeeper.append(comparison_reversed)
 
         # sig
-        #sChain.Draw(comparison+">>+"+sig,weight*cut,"COL2")
         sChain.Draw(comparison+">>+"+sig,weight*cut,"COL2")
         h_sig=ROOT.gPad.GetPrimitive(sig)
         correlation_sig.append(h_sig.GetCorrelationFactor())
@@ -215,8 +261,9 @@ var_inputs_SL["ph_pt[selph_index1]"]="$p_{T}(\gamma)$"
 var_inputs_SL["ph_eta[selph_index1]"]="$\eta(\gamma)$"
 var_inputs_SL["ph_drlept[selph_index1]"]="$\Delta R(\gamma,l)$"
 
-createCorrelationPlots(var_inputs_SL,
-  ["ejets","mujets"], label="single lepton")
+#createCorrelationPlots(var_inputs_SL,
+#  ["ejets","mujets"], label="single lepton")
+#   ["mujets"], label="single lepton")
 
 var_inputs_DL['event_ELD_MVA_correct[selph_index1]']="ELD"
 var_inputs_DL["met_met"]="MET"
@@ -234,4 +281,5 @@ var_inputs_DL["dPhi_lep"]="$\Delta \phi(l,l)$"
 var_inputs_DL["dEta_lep"]="$\Delta \eta(l,l)$"
 
 createCorrelationPlots(var_inputs_DL,
-  ["ee","emu","mumu"], label="dilepton")
+  #["ee","emu","mumu"], label="dilepton")
+  ["ee","emu"], label="dilepton")
