@@ -30,11 +30,16 @@ import matplotlib
 matplotlib.use('Agg')
 import matplotlib.pyplot as plt
 from matplotlib import rc
-rc('font',**{'family':'sans-serif','sans-serif':['Helvetica']})
-rc('text', usetex=True)
 import pandas
 import numpy
 from pandas.tools.plotting import scatter_matrix
+
+from matplotlib import rc
+import os
+
+from rootpy.plotting.style import set_style
+set_style('ATLAS', mpl=True)
+
 
 #ROOT.gROOT.ProcessLine( "gErrorIgnoreLevel = 6000;")
 ROOT.gROOT.SetBatch(True)
@@ -80,7 +85,8 @@ def createMatrix(correlation_list, variables, label,option):
   fig = plt.figure()
   ax = fig.add_subplot(111)
   cax = ax.matshow(data, vmin=-1, vmax=1)
-  fig.colorbar(cax)
+  cb=fig.colorbar(cax)
+  cb.ax.tick_params(length=3)
   ticks = numpy.arange(0,len(variables),1)
   ax.xaxis.tick_bottom()
   ax.set_xticks(ticks)
@@ -88,7 +94,7 @@ def createMatrix(correlation_list, variables, label,option):
   ax.set_xticklabels(variables)
   ax.set_yticklabels(variables)
   plt.setp(plt.xticks()[1], rotation=90)
-  ax.tick_params(labelsize=10)
+  ax.tick_params(labelsize=12,length=3)
   # Hide the right and top spines
   ax.spines['right'].set_visible(False)
   ax.spines['top'].set_visible(False)
@@ -96,27 +102,27 @@ def createMatrix(correlation_list, variables, label,option):
   ax.yaxis.set_ticks_position('left')
   ax.xaxis.set_ticks_position('bottom')
   if label=="dilepton":
-    plt.text(3.9,0.0,r"\textit{\textbf{ATLAS}} internal",
-            fontsize=18, color='black')
+    #plt.text(3.9,0.0,r"\textit{\textbf{ATLAS}} internal",
+            #fontsize=18, color='black')
     plt.text(3.9,0.70,pretty_label,
             fontsize=15, color='black')
     plt.text(3.9,1.40,str(label),
             fontsize=15, color='black')
-    plt.text(3.9,2.10,r"$\sqrt{s} = 13$ TeV, 36.1 fb$^{-1}$",
+    plt.text(3.9,2.10,r"$\sqrt{s}=$13 TeV, 36.1 fb$^{-1}$",
             fontsize=15, color='black')
   if label=="single lepton":
-    plt.text(4.9,0.3,r"\textit{\textbf{ATLAS}} internal",
-            fontsize=18, color='black')
+    #plt.text(4.9,0.3,r"\textit{\textbf{ATLAS}} internal",
+            #fontsize=18, color='black')
     plt.text(4.9,1.3,pretty_label,
             fontsize=15, color='black')
-    plt.text(4.9,2.3,str(label),
+    plt.text(4.9,2.5,"single-lepton",
             fontsize=15, color='black')
-    plt.text(4.9,3.3,r"$\sqrt{s} = 13$ TeV, 36.1 fb$^{-1}$",
+    plt.text(4.9,3.8,r"$\sqrt{s}=$13 TeV, 36.1 fb$^{-1}$",
             fontsize=15, color='black')
 
   plt.tight_layout()
   plt.savefig("Correlations/Matrix_"+label.replace(" ","_")+"_"+option+".png")
-  plt.savefig("Correlations/Matrix_"+label.replace(" ","_")+"_"+option+".eps")
+  plt.savefig("Correlations/Matrix_"+label.replace(" ","_")+"_"+option+".eps", format="eps", dpi=180)
 
 def createCorrelationPlots(variables_dict, region,label, correlation_type):
   ntuples = []
@@ -183,7 +189,7 @@ def createCorrelationPlots(variables_dict, region,label, correlation_type):
     f = ROOT.TFile(i,"r")
     if ("fake_CR1" not in i and f.GetListOfKeys().Contains("nominal")) or ("fake_CR1" in i and f.GetListOfKeys().Contains("nominal_Loose")): 
       if correlation_type=="signal":
-        if "ttgamma_noallhad.p3152.v010" in i:
+        if "410389.ttgamma_noallhad.p3152.v010" in i:
           print "Adding ", i, " to signal list"
           eChain.Add(i)
 
@@ -258,9 +264,9 @@ var_inputs_DL=OrderedDict()
 
 var_inputs_SL['event_ELD_MVA_correct[selph_index1]']="ELD"
 var_inputs_SL['ph_HFT_MVA[selph_index1]']="PPT"
-var_inputs_SL["event_HT"]="HT"
+var_inputs_SL["event_HT"]=r"$H_{T}$"
 var_inputs_SL["event_mwt"]=r"$m_{T}(W)$"
-var_inputs_SL["met_met"]="MET"
+var_inputs_SL["met_met"]=r"$E^{miss}_{T}$"
 var_inputs_SL["ph_mgammalept[selph_index1]"]=r"$m(\gamma,l)$"
 var_inputs_SL["ph_HFT_MVA[selph_index1]"]="PPT"
 var_inputs_SL["jet_pt_1st"]=r"1st jet $p_{T}$"
@@ -268,22 +274,22 @@ var_inputs_SL["jet_pt_2nd"]=r"2nd jet $p_{T}$"
 var_inputs_SL["jet_pt_3rd"]=r"3rd jet $p_{T}$"
 var_inputs_SL["jet_pt_4th"]=r"4th jet $p_{T}$"
 var_inputs_SL["jet_pt_5th"]=r"5th jet $p_{T}$"
-var_inputs_SL["jet_tagWeightBin_leading_correct"]="1st jet btag weight"
-var_inputs_SL["jet_tagWeightBin_subleading_correct"]="2nd jet btag weight"
-var_inputs_SL["jet_tagWeightBin_subsubleading_correct"]="3rd jet btag weight"
+var_inputs_SL["jet_tagWeightBin_leading_correct"]=r"highest $b$-tag weight"
+var_inputs_SL["jet_tagWeightBin_subleading_correct"]=r"2nd highest $b$-tag weight"
+var_inputs_SL["jet_tagWeightBin_subsubleading_correct"]=r"3rd highest $b$-tag weight"
 var_inputs_SL["event_njets"]="nr. of jets"
 var_inputs_SL["event_nbjets77"]="nr. btagged jets"
 #Differential variables
-var_inputs_SL["ph_pt[selph_index1]"]="$p_{T}(\gamma)$"
-var_inputs_SL["ph_eta[selph_index1]"]="$\eta(\gamma)$"
-var_inputs_SL["ph_drlept[selph_index1]"]="$\Delta R(\gamma,l)$"
+var_inputs_SL["ph_pt[selph_index1]"]=r"$p_{T}(\gamma)$"
+var_inputs_SL["ph_eta[selph_index1]"]=r"$\eta(\gamma)$"
+var_inputs_SL["ph_drlept[selph_index1]"]=r"$\Delta R(\gamma,l)$"
 
-createCorrelationPlots(var_inputs_SL,
-  ["ejets","mujets"], label="single lepton",correlation_type="signal")
-createCorrelationPlots(var_inputs_SL,
-  ["ejets","mujets"], label="single lepton",correlation_type="hfakes")
-createCorrelationPlots(var_inputs_SL,
-  ["ejets","mujets"], label="single lepton",correlation_type="efakes")
+#createCorrelationPlots(var_inputs_SL,
+#  ["ejets","mujets"], label="single lepton",correlation_type="signal")
+#createCorrelationPlots(var_inputs_SL,
+#  ["ejets","mujets"], label="single lepton",correlation_type="hfakes")
+#createCorrelationPlots(var_inputs_SL,
+#  ["ejets","mujets"], label="single lepton",correlation_type="efakes")
 createCorrelationPlots(var_inputs_SL,
   ["ejets","mujets"], label="single lepton",correlation_type="prompt_bkg")
 createCorrelationPlots(var_inputs_SL,
@@ -300,9 +306,9 @@ var_inputs_DL["event_nbjets77"]="nr. btagged jets"
 #Differential variables
 var_inputs_DL["ph_pt[selph_index1]"]="$p_{T}(\gamma)$"
 var_inputs_DL["ph_eta[selph_index1]"]="$\eta(\gamma)$"
-var_inputs_DL["ph_drlept[selph_index1]"]="$\Delta R(\gamma,l)$"
-var_inputs_DL["dPhi_lep"]="$\Delta \phi(l,l)$"
-var_inputs_DL["dEta_lep"]="$\Delta \eta(l,l)$"
+var_inputs_DL["ph_drlept[selph_index1]"]="$dR(\gamma,l)$"
+var_inputs_DL["dPhi_lep"]="$d\phi(l,l)$"
+var_inputs_DL["dEta_lep"]="$d\eta(l,l)$"
 
 #createCorrelationPlots(var_inputs_DL,
 #  ["ee","emu","mumu"], label="dilepton", correlation_type="signal")
